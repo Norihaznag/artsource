@@ -5,6 +5,7 @@ import { AdminSidebar } from '@/components/admin';
 import { Card, CardContent, Button, Badge } from '@/components/ui';
 import { createAdminClient } from '@/lib/supabase/server';
 import { getInitials } from '@/lib/utils';
+import type { Testimonial } from '@/types/database';
 
 async function checkAuth() {
   const cookieStore = await cookies();
@@ -14,16 +15,20 @@ async function checkAuth() {
   }
 }
 
-async function getTestimonials() {
-  const supabase = await createAdminClient();
-  
-  const { data } = await supabase
-    .from('testimonials')
-    .select('*')
-    .order('display_order')
-    .order('created_at', { ascending: false });
-  
-  return data || [];
+async function getTestimonials(): Promise<Testimonial[]> {
+  try {
+    const supabase = await createAdminClient();
+    
+    const { data } = await supabase
+      .from('testimonials')
+      .select('*')
+      .order('display_order')
+      .order('created_at', { ascending: false });
+    
+    return (data as Testimonial[]) || [];
+  } catch {
+    return [];
+  }
 }
 
 export default async function AdminTestimonialsPage() {

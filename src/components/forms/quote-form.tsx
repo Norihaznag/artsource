@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Send, CheckCircle, MessageCircle, Upload } from 'lucide-react';
 import { Button, Input, Textarea, Select } from '@/components/ui';
 import { moroccanCities, productTypes, quantityOptions, siteConfig } from '@/lib/config';
@@ -15,6 +16,7 @@ interface QuoteFormProps {
 type FormState = 'idle' | 'loading' | 'success' | 'error';
 
 export function QuoteForm({ productName, compact = false, className = '' }: QuoteFormProps) {
+  const router = useRouter();
   const [formState, setFormState] = useState<FormState>('idle');
   const [errorMessage, setErrorMessage] = useState('');
   const [formData, setFormData] = useState({

@@ -1,0 +1,4 @@
+/* Placeholder for Open Graph image */
+/* Create og-image.jpg: 1200x630px */
+/* Include: ARTSOURCE logo, tagline, and background */
+/* This image appears when the site is shared on social media */

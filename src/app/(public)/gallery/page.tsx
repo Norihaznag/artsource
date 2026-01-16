@@ -82,7 +82,7 @@ export default function GalleryPage() {
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="w-16 h-16 bg-primary-500/20 rounded-full flex items-center justify-center">
                           <span className="text-2xl font-bold text-primary-500">
-                            {item.title_fr?.[0] || 'G'}
+                            {item.title?.[0] || 'G'}
                           </span>
                         </div>
                       </div>
@@ -91,18 +91,11 @@ export default function GalleryPage() {
                         <span className="text-white font-medium">Voir</span>
                       </div>
                     </div>
-                    {(item.title_fr || item.category) && (
+                    {item.title && (
                       <CardContent className="p-4">
-                        {item.title_fr && (
-                          <h3 className="font-semibold text-secondary-900 truncate">
-                            {item.title_fr}
-                          </h3>
-                        )}
-                        {item.category && (
-                          <p className="text-sm text-secondary-500">
-                            {(item.category as { name_fr: string }).name_fr}
-                          </p>
-                        )}
+                        <h3 className="font-semibold text-secondary-900 truncate">
+                          {item.title}
+                        </h3>
                       </CardContent>
                     )}
                   </Card>

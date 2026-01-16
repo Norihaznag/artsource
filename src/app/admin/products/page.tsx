@@ -6,6 +6,11 @@ import { AdminSidebar } from '@/components/admin';
 import { Card, CardContent, Button, Badge } from '@/components/ui';
 import { createAdminClient } from '@/lib/supabase/server';
 import { formatPrice } from '@/lib/utils';
+import type { Product } from '@/types/database';
+
+type ProductWithCategory = Product & {
+  category?: { name_fr: string } | null;
+};
 
 async function checkAuth() {
   const cookieStore = await cookies();
@@ -15,16 +20,20 @@ async function checkAuth() {
   }
 }
 
-async function getProducts() {
-  const supabase = await createAdminClient();
-  
-  const { data } = await supabase
-    .from('products')
-    .select('*, category:categories(name_fr)')
-    .order('display_order')
-    .order('created_at', { ascending: false });
-  
-  return data || [];
+async function getProducts(): Promise<ProductWithCategory[]> {
+  try {
+    const supabase = await createAdminClient();
+    
+    const { data } = await supabase
+      .from('products')
+      .select('*, category:categories(name_fr)')
+      .order('display_order')
+      .order('created_at', { ascending: false });
+    
+    return (data as ProductWithCategory[]) || [];
+  } catch {
+    return [];
+  }
 }
 
 export default async function AdminProductsPage() {

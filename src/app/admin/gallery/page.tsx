@@ -1,9 +1,14 @@
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
-import { Plus, Upload, Trash2 } from 'lucide-react';
+import { Upload, Trash2 } from 'lucide-react';
 import { AdminSidebar } from '@/components/admin';
 import { Card, CardContent, Button } from '@/components/ui';
 import { createAdminClient } from '@/lib/supabase/server';
+import type { GalleryItem } from '@/types/database';
+
+type GalleryWithCategory = GalleryItem & {
+  category?: { name_fr: string } | null;
+};
 
 async function checkAuth() {
   const cookieStore = await cookies();
@@ -13,16 +18,20 @@ async function checkAuth() {
   }
 }
 
-async function getGallery() {
-  const supabase = await createAdminClient();
-  
-  const { data } = await supabase
-    .from('gallery')
-    .select('*, category:categories(name_fr)')
-    .order('display_order')
-    .order('created_at', { ascending: false });
-  
-  return data || [];
+async function getGallery(): Promise<GalleryWithCategory[]> {
+  try {
+    const supabase = await createAdminClient();
+    
+    const { data } = await supabase
+      .from('gallery')
+      .select('*, category:categories(name_fr)')
+      .order('display_order')
+      .order('created_at', { ascending: false });
+    
+    return (data as GalleryWithCategory[]) || [];
+  } catch {
+    return [];
+  }
 }
 
 export default async function AdminGalleryPage() {

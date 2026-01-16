@@ -158,9 +158,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                             
                             <div className="flex items-center justify-between">
                               <div>
-                                {product.price_starting && (
+                                {product.starting_price && (
                                   <p className="text-lg font-bold text-primary-600">
-                                    À partir de {formatPrice(product.price_starting)}
+                                    À partir de {formatPrice(product.starting_price)}
                                   </p>
                                 )}
                               </div>

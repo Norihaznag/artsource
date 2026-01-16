@@ -13,6 +13,7 @@ import {
 import { AdminSidebar } from '@/components/admin';
 import { Card, CardContent, CardHeader, CardTitle, Button, Input, Textarea } from '@/components/ui';
 import { createAdminClient } from '@/lib/supabase/server';
+import type { Setting, HeroContent } from '@/types/database';
 
 async function checkAuth() {
   const cookieStore = await cookies();
@@ -22,30 +23,40 @@ async function checkAuth() {
   }
 }
 
-async function getSettings() {
-  const supabase = await createAdminClient();
-  const { data } = await supabase.from('settings').select('*');
-  
-  // Convert array to object for easier access
-  const settings: Record<string, string> = {};
-  data?.forEach(s => {
-    settings[s.key] = s.value;
-  });
-  
-  return settings;
+async function getSettings(): Promise<Record<string, string>> {
+  try {
+    const supabase = await createAdminClient();
+    const { data } = await supabase.from('settings').select('*');
+    
+    // Convert array to object for easier access
+    const settings: Record<string, string> = {};
+    (data as Setting[] | null)?.forEach(s => {
+      if (s.value !== null) {
+        settings[s.key] = s.value;
+      }
+    });
+    
+    return settings;
+  } catch {
+    return {};
+  }
 }
 
-async function getHeroContent() {
-  const supabase = await createAdminClient();
-  const { data } = await supabase
-    .from('hero_content')
-    .select('*')
-    .eq('is_active', true)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .single();
-  
-  return data;
+async function getHeroContent(): Promise<HeroContent | null> {
+  try {
+    const supabase = await createAdminClient();
+    const { data } = await supabase
+      .from('hero_content')
+      .select('*')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+    
+    return data as HeroContent | null;
+  } catch {
+    return null;
+  }
 }
 
 export default async function AdminSettingsPage() {
@@ -243,12 +254,6 @@ export default async function AdminSettingsPage() {
                       defaultValue={heroContent?.subtitle_fr || ''}
                       placeholder="Des produits de qualité..."
                     />
-                    <Textarea
-                      label="Description"
-                      defaultValue={heroContent?.description_fr || ''}
-                      placeholder="Description détaillée..."
-                      rows={4}
-                    />
                   </div>
                   <div className="space-y-4">
                     <Input
@@ -275,7 +280,7 @@ export default async function AdminSettingsPage() {
                 </div>
 
                 {/* Image Preview */}
-                {heroContent?.background_image && (
+                {heroContent?.background_image_url && (
                   <div className="mt-6">
                     <p className="text-sm font-medium text-secondary-700 mb-2">
                       Image d&apos;arrière-plan actuelle
@@ -283,7 +288,7 @@ export default async function AdminSettingsPage() {
                     <div className="relative aspect-video max-w-md rounded-lg overflow-hidden bg-secondary-100">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={heroContent.background_image}
+                        src={heroContent.background_image_url}
                         alt="Hero background"
                         className="w-full h-full object-cover"
                       />

@@ -7,6 +7,7 @@ import { Card, CardContent, Button, Badge, Input, Select } from '@/components/ui
 import { createAdminClient } from '@/lib/supabase/server';
 import { formatDateShort, generateWhatsAppLink } from '@/lib/utils';
 import { leadStatuses, siteConfig } from '@/lib/config';
+import type { Lead } from '@/types/database';
 
 async function checkAuth() {
   const cookieStore = await cookies();
@@ -20,25 +21,29 @@ interface LeadsPageProps {
   searchParams: Promise<{ status?: string; search?: string }>;
 }
 
-async function getLeads(status?: string, search?: string) {
-  const supabase = await createAdminClient();
-  
-  let query = supabase
-    .from('leads')
-    .select('*')
-    .order('created_at', { ascending: false });
-  
-  if (status && status !== 'all') {
-    query = query.eq('status', status);
+async function getLeads(status?: string, search?: string): Promise<Lead[]> {
+  try {
+    const supabase = await createAdminClient();
+    
+    let query = supabase
+      .from('leads')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (status && status !== 'all') {
+      query = query.eq('status', status);
+    }
+    
+    if (search) {
+      query = query.or(`full_name.ilike.%${search}%,phone.ilike.%${search}%,city.ilike.%${search}%`);
+    }
+    
+    const { data } = await query;
+    
+    return (data as Lead[]) || [];
+  } catch {
+    return [];
   }
-  
-  if (search) {
-    query = query.or(`full_name.ilike.%${search}%,phone.ilike.%${search}%,city.ilike.%${search}%`);
-  }
-  
-  const { data } = await query;
-  
-  return data || [];
 }
 
 export default async function AdminLeadsPage({ searchParams }: LeadsPageProps) {

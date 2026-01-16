@@ -15,6 +15,7 @@ import { AdminSidebar } from '@/components/admin';
 import { Card, CardContent, Badge } from '@/components/ui';
 import { createAdminClient } from '@/lib/supabase/server';
 import { formatDateShort } from '@/lib/utils';
+import type { Lead } from '@/types/database';
 
 async function checkAuth() {
   const cookieStore = await cookies();
@@ -24,39 +25,56 @@ async function checkAuth() {
   }
 }
 
+type LeadSummary = Pick<Lead, 'id' | 'status' | 'created_at'>;
+
 async function getDashboardStats() {
-  const supabase = await createAdminClient();
+  try {
+    const supabase = await createAdminClient();
 
-  const [leadsResult, productsResult, galleryResult] = await Promise.all([
-    supabase.from('leads').select('id, status, created_at', { count: 'exact' }),
-    supabase.from('products').select('id', { count: 'exact' }),
-    supabase.from('gallery').select('id', { count: 'exact' }),
-  ]);
+    const [leadsResult, productsResult, galleryResult] = await Promise.all([
+      supabase.from('leads').select('id, status, created_at', { count: 'exact' }),
+      supabase.from('products').select('id', { count: 'exact' }),
+      supabase.from('gallery').select('id', { count: 'exact' }),
+    ]);
 
-  const newLeads = leadsResult.data?.filter(l => l.status === 'new').length || 0;
-  const recentLeads = leadsResult.data
-    ?.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-    .slice(0, 5) || [];
+    const leads = (leadsResult.data || []) as LeadSummary[];
+    const newLeads = leads.filter(l => l.status === 'new').length;
+    const recentLeads = leads
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .slice(0, 5);
 
-  return {
-    totalLeads: leadsResult.count || 0,
-    newLeads,
-    totalProducts: productsResult.count || 0,
-    totalGallery: galleryResult.count || 0,
-    recentLeads,
-  };
+    return {
+      totalLeads: leadsResult.count || 0,
+      newLeads,
+      totalProducts: productsResult.count || 0,
+      totalGallery: galleryResult.count || 0,
+      recentLeads,
+    };
+  } catch {
+    return {
+      totalLeads: 0,
+      newLeads: 0,
+      totalProducts: 0,
+      totalGallery: 0,
+      recentLeads: [] as LeadSummary[],
+    };
+  }
 }
 
-async function getRecentLeads() {
-  const supabase = await createAdminClient();
-  
-  const { data } = await supabase
-    .from('leads')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .limit(5);
-  
-  return data || [];
+async function getRecentLeads(): Promise<Lead[]> {
+  try {
+    const supabase = await createAdminClient();
+    
+    const { data } = await supabase
+      .from('leads')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(5);
+    
+    return (data as Lead[]) || [];
+  } catch {
+    return [];
+  }
 }
 
 export default async function AdminDashboardPage() {

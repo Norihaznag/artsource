@@ -1,0 +1,22 @@
+
+> artsource@1.0.0 build
+> next build
+
+  ▲ Next.js 14.2.21
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+Failed to compile.
+
+./src/app/(public)/gallery/page.tsx:85:35
+Type error: Property 'title_fr' does not exist on type '{ id: string; title: string; category_id: string; image_url: string; }'.
+
+[0m [90m 83 |[39m                         [33m<[39m[33mdiv[39m className[33m=[39m[32m"w-16 h-16 bg-primary-500/20 rounded-full flex items-center justify-center"[39m[33m>[39m[0m
+[0m [90m 84 |[39m                           [33m<[39m[33mspan[39m className[33m=[39m[32m"text-2xl font-bold text-primary-500"[39m[33m>[39m[0m
+[0m[31m[1m>[22m[39m[90m 85 |[39m                             {item[33m.[39mtitle_fr[33m?[39m[33m.[39m[[35m0[39m] [33m||[39m [32m'G'[39m}[0m
+[0m [90m    |[39m                                   [31m[1m^[22m[39m[0m
+[0m [90m 86 |[39m                           [33m<[39m[33m/[39m[33mspan[39m[33m>[39m[0m
+[0m [90m 87 |[39m                         [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m[0m
+[0m [90m 88 |[39m                       [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m[0m

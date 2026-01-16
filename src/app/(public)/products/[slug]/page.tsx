@@ -87,7 +87,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     offers: {
       '@type': 'Offer',
       priceCurrency: 'MAD',
-      price: product.price_starting || 0,
+      price: product.starting_price || 0,
       availability: 'https://schema.org/InStock',
       seller: {
         '@type': 'Organization',
@@ -189,9 +189,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
               {/* Price */}
               <div className="bg-primary-50 rounded-xl p-6 mb-8">
                 <div className="flex items-baseline gap-2 mb-1">
-                  {product.price_starting && (
+                  {product.starting_price && (
                     <span className="text-3xl font-bold text-primary-600">
-                      À partir de {formatPrice(product.price_starting)}
+                      À partir de {formatPrice(product.starting_price)}
                     </span>
                   )}
                 </div>
@@ -272,9 +272,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
                       <h3 className="font-bold text-secondary-900 group-hover:text-primary-600 transition-colors">
                         {relatedProduct.name_fr}
                       </h3>
-                      {relatedProduct.price_starting && (
+                      {relatedProduct.starting_price && (
                         <p className="text-primary-600 font-semibold mt-2">
-                          À partir de {formatPrice(relatedProduct.price_starting)}
+                          À partir de {formatPrice(relatedProduct.starting_price)}
                         </p>
                       )}
                     </CardContent>
